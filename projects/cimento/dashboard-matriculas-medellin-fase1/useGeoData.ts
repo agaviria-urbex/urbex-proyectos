@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FeatureCollection } from 'geojson';
 import { withBasePath } from '@/lib/paths';
-import { GEOJSON_BASE, LAYER_CONFIGS } from './layers';
+import { GEOJSON_BASE, MAP_LAYER_CONFIGS } from './layers';
 import {
   DEFAULT_FILTERS,
   type DashboardFilters,
   type FilteredLayerData,
+  type LayerCounts,
   type LayerData,
   type LayerId,
-  type LayerStats,
 } from './types';
 
 function getCbml(props: Record<string, unknown>, field?: string): string | null {
@@ -32,48 +32,16 @@ function matchesMatriculaFilters(
     if (!filters.destinaciones.includes(dest)) return false;
   }
 
-  const estrato = Number(props.estrato ?? props.estrato_usos ?? 0);
-  if (estrato > 0 && (estrato < filters.estratoMin || estrato > filters.estratoMax)) {
-    return false;
-  }
-
-  if (filters.barrio !== 'all') {
-    const barrio = String(props.barrio ?? '');
-    if (barrio !== filters.barrio) return false;
-  }
-
-  const area = Number(props.area_terreno ?? 0);
-  if (area > 0 && (area < filters.areaMin || area > filters.areaMax)) return false;
-
-  const avaluo = Number(props.avaluototal ?? 0);
-  if (avaluo > 0 && (avaluo < filters.avaluoMin || avaluo > filters.avaluoMax)) return false;
-
   if (filters.matriculaSearch) {
     const mat = String(props.matricula_inmobiliaria ?? '');
     if (!mat.toLowerCase().includes(filters.matriculaSearch.toLowerCase())) return false;
-  }
-
-  if (filters.cbmlSearch) {
-    const cbml = String(props.cbml ?? '');
-    if (!cbml.includes(filters.cbmlSearch)) return false;
   }
 
   return true;
 }
 
 function hasActiveFilters(filters: DashboardFilters): boolean {
-  return (
-    filters.destinaciones.length > 0 ||
-    filters.estratoMin > 1 ||
-    filters.estratoMax < 6 ||
-    filters.barrio !== 'all' ||
-    filters.areaMin > 0 ||
-    filters.areaMax < 100000 ||
-    filters.avaluoMin > 0 ||
-    filters.avaluoMax < 10000000000 ||
-    filters.matriculaSearch !== '' ||
-    filters.cbmlSearch !== ''
-  );
+  return filters.destinaciones.length > 0 || filters.matriculaSearch !== '';
 }
 
 function filterCollection(
@@ -97,7 +65,7 @@ export function useGeoData() {
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
   const [visibleLayers, setVisibleLayers] = useState<Record<LayerId, boolean>>(() =>
     Object.fromEntries(
-      LAYER_CONFIGS.map((l) => [l.id, l.defaultVisible])
+      MAP_LAYER_CONFIGS.map((l) => [l.id, l.defaultVisible])
     ) as Record<LayerId, boolean>
   );
   const [loading, setLoading] = useState(true);
@@ -108,7 +76,7 @@ export function useGeoData() {
       try {
         setLoading(true);
         const entries = await Promise.all(
-          LAYER_CONFIGS.map(async (layer) => {
+          MAP_LAYER_CONFIGS.map(async (layer) => {
             const url = withBasePath(`${GEOJSON_BASE}/${layer.fileName}`);
             const response = await fetch(url);
             if (!response.ok) {
@@ -131,12 +99,7 @@ export function useGeoData() {
 
   const filterOptions = useMemo(() => {
     if (!rawLayers) {
-      return {
-        destinaciones: [] as string[],
-        barrios: [] as string[],
-        areaRange: [0, 100000] as [number, number],
-        avaluoRange: [0, 10000000000] as [number, number],
-      };
+      return { destinaciones: [] as string[] };
     }
 
     const matriculas = rawLayers.base_predios_completa.features.filter(
@@ -151,31 +114,7 @@ export function useGeoData() {
       ),
     ].sort();
 
-    const barrios = [
-      ...new Set(
-        matriculas.map((f) => String(f.properties?.barrio ?? '')).filter(Boolean)
-      ),
-    ].sort();
-
-    const areas = matriculas
-      .map((f) => Number(f.properties?.area_terreno ?? 0))
-      .filter((v) => v > 0);
-    const avaluos = matriculas
-      .map((f) => Number(f.properties?.avaluototal ?? 0))
-      .filter((v) => v > 0);
-
-    return {
-      destinaciones,
-      barrios,
-      areaRange: [
-        areas.length ? Math.floor(Math.min(...areas)) : 0,
-        areas.length ? Math.ceil(Math.max(...areas)) : 100000,
-      ] as [number, number],
-      avaluoRange: [
-        avaluos.length ? Math.floor(Math.min(...avaluos)) : 0,
-        avaluos.length ? Math.ceil(Math.max(...avaluos)) : 10000000000,
-      ] as [number, number],
-    };
+    return { destinaciones };
   }, [rawLayers]);
 
   const filteredData: FilteredLayerData | null = useMemo(() => {
@@ -200,7 +139,7 @@ export function useGeoData() {
       : matriculas.features;
 
     const layers = Object.fromEntries(
-      LAYER_CONFIGS.map((config) => {
+      MAP_LAYER_CONFIGS.map((config) => {
         if (config.id === 'base_predios_completa') {
           return [
             config.id,
@@ -234,82 +173,41 @@ export function useGeoData() {
     };
   }, [rawLayers, filters]);
 
-  const layerStats: LayerStats[] = useMemo(() => {
-    if (!rawLayers || !filteredData) return [];
-
-    return LAYER_CONFIGS.map((config) => ({
-      id: config.id,
-      label: config.label,
-      total: rawLayers[config.id].features.length,
-      visible: filteredData.layers[config.id].features.length,
-      isLayerVisible: visibleLayers[config.id],
-    }));
-  }, [rawLayers, filteredData, visibleLayers]);
-
-  const summaryStats = useMemo(() => {
-    if (!filteredData || !rawLayers) {
-      return {
-        matriculas: 0,
-        avaluoPromedio: 0,
-        areaPromedio: 0,
-        destinaciones: {} as Record<string, number>,
-      };
+  const layerCounts: LayerCounts = useMemo(() => {
+    if (!filteredData) {
+      return { matriculas: 0, lotes: 0, construcciones: 0, nomenclatura: 0 };
     }
+
+    return {
+      matriculas: filteredData.filteredMatriculaCount,
+      lotes: filteredData.layers.lotes_filtro.features.length,
+      construcciones: filteredData.layers.construcciones_filtro.features.length,
+      nomenclatura: filteredData.layers.nomenclatura_filtro.features.length,
+    };
+  }, [filteredData]);
+
+  const destinaciones = useMemo(() => {
+    if (!filteredData) return {} as Record<string, number>;
 
     const matriculas = filteredData.layers.base_predios_completa.features.filter(
       (f) => String(f.properties?.fuente ?? '') === 'matricula'
     );
 
-    const avaluos = matriculas
-      .map((f) => Number(f.properties?.avaluototal ?? 0))
-      .filter((v) => v > 0);
-    const areas = matriculas
-      .map((f) => Number(f.properties?.area_terreno ?? 0))
-      .filter((v) => v > 0);
-
-    const destinaciones: Record<string, number> = {};
+    const result: Record<string, number> = {};
     matriculas.forEach((f) => {
       const dest = String(f.properties?.destinacion_principal ?? 'Sin dato');
-      destinaciones[dest] = (destinaciones[dest] ?? 0) + 1;
+      result[dest] = (result[dest] ?? 0) + 1;
     });
-
-    return {
-      matriculas: matriculas.length,
-      avaluoPromedio: avaluos.length
-        ? avaluos.reduce((a, b) => a + b, 0) / avaluos.length
-        : 0,
-      areaPromedio: areas.length
-        ? areas.reduce((a, b) => a + b, 0) / areas.length
-        : 0,
-      destinaciones,
-    };
-  }, [filteredData, rawLayers]);
+    return result;
+  }, [filteredData]);
 
   const toggleLayer = useCallback((id: LayerId) => {
     setVisibleLayers((prev) => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
   const resetFilters = useCallback(() => {
-    setFilters({
-      ...DEFAULT_FILTERS,
-      areaMin: filterOptions.areaRange[0],
-      areaMax: filterOptions.areaRange[1],
-      avaluoMin: filterOptions.avaluoRange[0],
-      avaluoMax: filterOptions.avaluoRange[1],
-    });
-  }, [filterOptions]);
-
-  useEffect(() => {
-    if (filterOptions.areaRange[1] > 0) {
-      setFilters((prev) => ({
-        ...prev,
-        areaMin: filterOptions.areaRange[0],
-        areaMax: filterOptions.areaRange[1],
-        avaluoMin: filterOptions.avaluoRange[0],
-        avaluoMax: filterOptions.avaluoRange[1],
-      }));
-    }
-  }, [filterOptions]);
+    setFilters(DEFAULT_FILTERS);
+  }, []);
 
   return {
     loading,
@@ -320,8 +218,8 @@ export function useGeoData() {
     visibleLayers,
     toggleLayer,
     filteredData,
-    layerStats,
-    summaryStats,
+    layerCounts,
+    destinaciones,
     filterOptions,
   };
 }

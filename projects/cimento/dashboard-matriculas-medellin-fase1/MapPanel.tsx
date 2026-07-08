@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { LAYER_CONFIGS } from './layers';
+import { MAP_LAYER_CONFIGS } from './layers';
 import type { LayerData, LayerId } from './types';
 
 interface MapPanelProps {
@@ -103,7 +103,7 @@ export function MapPanel({ layers, visibleLayers }: MapPanelProps) {
     if (!map || !layers) return;
 
     const updateLayers = () => {
-      LAYER_CONFIGS.forEach((config) => {
+      MAP_LAYER_CONFIGS.forEach((config) => {
         const sourceId = `source-${config.id}`;
         const data = layers[config.id];
 
@@ -166,7 +166,7 @@ export function MapPanel({ layers, visibleLayers }: MapPanelProps) {
     const map = mapRef.current;
     if (!map) return;
 
-    LAYER_CONFIGS.forEach((config) => {
+    MAP_LAYER_CONFIGS.forEach((config) => {
       const visibility = visibleLayers[config.id] ? 'visible' : 'none';
       const layerIds =
         config.geometryType === 'point'

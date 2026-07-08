@@ -1,29 +1,35 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatCurrencyCOP } from '@/lib/utils';
-import type { LayerStats } from './types';
-import { BarChart3 } from 'lucide-react';
+import type { LayerCounts } from './types';
+import { BarChart3, Loader2 } from 'lucide-react';
+
+const DestinacionBarChart = dynamic(
+  () => import('./DestinacionBarChart').then((mod) => ({ default: mod.DestinacionBarChart })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-[#a738cd]" />
+      </div>
+    ),
+  }
+);
 
 interface StatsPanelProps {
-  layerStats: LayerStats[];
-  summaryStats: {
-    matriculas: number;
-    avaluoPromedio: number;
-    areaPromedio: number;
-    destinaciones: Record<string, number>;
-  };
-  totalMatriculaCount: number;
-  filteredMatriculaCount: number;
+  counts: LayerCounts;
+  destinaciones: Record<string, number>;
 }
 
-export function StatsPanel({
-  layerStats,
-  summaryStats,
-  totalMatriculaCount,
-  filteredMatriculaCount,
-}: StatsPanelProps) {
+const STAT_BOXES: { key: keyof LayerCounts; label: string }[] = [
+  { key: 'matriculas', label: 'Matrículas' },
+  { key: 'lotes', label: 'Lotes' },
+  { key: 'construcciones', label: 'Construcciones' },
+  { key: 'nomenclatura', label: 'Nomenclatura' },
+];
+
+export function StatsPanel({ counts, destinaciones }: StatsPanelProps) {
   return (
     <div className="flex h-full flex-col bg-white border-l">
       <div className="p-4 border-b">
@@ -34,75 +40,29 @@ export function StatsPanel({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Matrículas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-[#a738cd]">
-              {filteredMatriculaCount}
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                / {totalMatriculaCount}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Registros visibles con filtros</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Promedios</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Avalúo promedio</span>
-              <span className="font-medium">
-                {formatCurrencyCOP(summaryStats.avaluoPromedio, 'N/A')}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Área terreno prom.</span>
-              <span className="font-medium">
-                {summaryStats.areaPromedio > 0
-                  ? `${Math.round(summaryStats.areaPromedio).toLocaleString('es-CO')} m²`
-                  : 'N/A'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-2 gap-3">
+          {STAT_BOXES.map(({ key, label }) => (
+            <Card key={key}>
+              <CardHeader className="pb-1 pt-3 px-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {label}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                <p className="text-2xl font-bold text-[#a738cd]">
+                  {counts[key].toLocaleString('es-CO')}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Por destinación</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {Object.entries(summaryStats.destinaciones).map(([dest, count]) => (
-              <Badge key={dest} variant="secondary" className="text-xs">
-                {dest}: {count}
-              </Badge>
-            ))}
-            {Object.keys(summaryStats.destinaciones).length === 0 && (
-              <p className="text-sm text-muted-foreground">Sin datos</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Registros por capa</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {layerStats.map((stat) => (
-              <div key={stat.id} className="flex items-center justify-between text-sm">
-                <span className={stat.isLayerVisible ? '' : 'text-muted-foreground line-through'}>
-                  {stat.label}
-                </span>
-                <span className="font-medium">
-                  {stat.visible}
-                  <span className="text-muted-foreground font-normal"> / {stat.total}</span>
-                </span>
-              </div>
-            ))}
+          <CardContent>
+            <DestinacionBarChart data={destinaciones} />
           </CardContent>
         </Card>
       </div>

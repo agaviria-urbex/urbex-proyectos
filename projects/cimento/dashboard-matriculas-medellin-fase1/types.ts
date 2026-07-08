@@ -1,14 +1,11 @@
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
 
 export type LayerId =
-  | 'poligono'
-  | 'barrio_filtro'
-  | 'estrato_filtro'
-  | 'lotes_filtro'
-  | 'construcciones_filtro'
+  | 'base_predios_completa'
   | 'nomenclatura_filtro'
-  | 'usos_predio_filtro'
-  | 'base_predios_completa';
+  | 'construcciones_filtro'
+  | 'lotes_filtro'
+  | 'poligono';
 
 export interface LayerConfig {
   id: LayerId;
@@ -23,15 +20,7 @@ export interface LayerConfig {
 
 export interface DashboardFilters {
   destinaciones: string[];
-  estratoMin: number;
-  estratoMax: number;
-  barrio: string;
-  areaMin: number;
-  areaMax: number;
-  avaluoMin: number;
-  avaluoMax: number;
   matriculaSearch: string;
-  cbmlSearch: string;
 }
 
 export type LayerData = Record<LayerId, FeatureCollection>;
@@ -43,25 +32,16 @@ export interface FilteredLayerData {
   totalMatriculaCount: number;
 }
 
-export interface LayerStats {
-  id: LayerId;
-  label: string;
-  total: number;
-  visible: number;
-  isLayerVisible: boolean;
+export interface LayerCounts {
+  matriculas: number;
+  lotes: number;
+  construcciones: number;
+  nomenclatura: number;
 }
 
 export type GeoFeature = Feature<Geometry, Record<string, unknown>>;
 
 export const DEFAULT_FILTERS: DashboardFilters = {
   destinaciones: [],
-  estratoMin: 1,
-  estratoMax: 6,
-  barrio: 'all',
-  areaMin: 0,
-  areaMax: 100000,
-  avaluoMin: 0,
-  avaluoMax: 10000000000,
   matriculaSearch: '',
-  cbmlSearch: '',
 };

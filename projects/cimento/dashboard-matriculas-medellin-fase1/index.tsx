@@ -1,12 +1,24 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut } from 'lucide-react';
 import { FilterPanel } from './FilterPanel';
-import { MapPanel } from './MapPanel';
 import { StatsPanel } from './StatsPanel';
 import { useGeoData } from './useGeoData';
+
+const MapPanel = dynamic(
+  () => import('./MapPanel').then((mod) => ({ default: mod.MapPanel })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center bg-gray-100 rounded-lg">
+        <Loader2 className="h-8 w-8 animate-spin text-[#a738cd]" />
+      </div>
+    ),
+  }
+);
 
 const URBEX_LOGO =
   'https://iconsapp.nyc3.digitaloceanspaces.com/urbex_negativo.png';
@@ -22,8 +34,8 @@ export default function DashboardMatriculasMedellin() {
     visibleLayers,
     toggleLayer,
     filteredData,
-    layerStats,
-    summaryStats,
+    layerCounts,
+    destinaciones,
     filterOptions,
   } = useGeoData();
 
@@ -87,12 +99,7 @@ export default function DashboardMatriculasMedellin() {
         </div>
 
         <div className="flex-1 min-w-[280px] max-w-sm">
-          <StatsPanel
-            layerStats={layerStats}
-            summaryStats={summaryStats}
-            totalMatriculaCount={filteredData?.totalMatriculaCount ?? 0}
-            filteredMatriculaCount={filteredData?.filteredMatriculaCount ?? 0}
-          />
+          <StatsPanel counts={layerCounts} destinaciones={destinaciones} />
         </div>
       </div>
     </div>
