@@ -47,6 +47,35 @@ export async function fetchProyectos(email: string): Promise<ApiResponse<Proyect
   return apiCall<ProyectoCatalogo[]>('/proyectos/listar', { email });
 }
 
+/**
+ * Lista proyectos y, si la API aún no incluye grupos en /listar,
+ * los completa con /proyectos/grupos/listar por cada proyecto.
+ */
+export async function fetchProyectosConGrupos(email: string): Promise<ApiResponse<ProyectoCatalogo[]>> {
+  const res = await fetchProyectos(email);
+  if (!res.success || !res.data) return res;
+
+  const needsGrupos = res.data.some((p) => !Array.isArray(p.grupos));
+  if (!needsGrupos) return res;
+
+  const enriched = await Promise.all(
+    res.data.map(async (proyecto) => {
+      if (Array.isArray(proyecto.grupos)) return proyecto;
+      try {
+        const gruposRes = await listarGrupos(email, proyecto.id);
+        return {
+          ...proyecto,
+          grupos: gruposRes.success && gruposRes.data ? gruposRes.data : [],
+        };
+      } catch {
+        return { ...proyecto, grupos: [] };
+      }
+    })
+  );
+
+  return { ...res, data: enriched };
+}
+
 export async function fetchProyectoDetalle(email: string, proyectoId: number): Promise<ApiResponse<ProyectoCatalogo>> {
   return apiCall<ProyectoCatalogo>('/proyectos/detalle', { email, proyecto_id: proyectoId });
 }

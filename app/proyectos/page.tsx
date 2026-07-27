@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchProyectos, type ProyectoCatalogo } from '@/lib/proyectos-api';
+import { fetchProyectosConGrupos, type ProyectoCatalogo } from '@/lib/proyectos-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,7 @@ export default function ProyectosPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchProyectos(user.email);
+      const res = await fetchProyectosConGrupos(user.email);
       if (res.success && res.data) {
         setProyectos(res.data);
         if (res.grupo) setUserGrupo(res.grupo);
@@ -71,6 +71,17 @@ export default function ProyectosPage() {
     return Array.from(set).sort();
   }, [proyectos]);
 
+  // Grupos unicos derivados de los proyectos ya cargados
+  const gruposUnicos = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of proyectos) {
+      for (const g of p.grupos || []) {
+        if (g.grupo_cognito) set.add(g.grupo_cognito);
+      }
+    }
+    return Array.from(set).sort();
+  }, [proyectos]);
+
   // Filtrado
   const proyectosFiltrados = useMemo(() => {
     return proyectos.filter((p) => {
@@ -80,9 +91,13 @@ export default function ProyectosPage() {
       if (filterEmpresa && p.empresa_label !== filterEmpresa) {
         return false;
       }
+      if (filterGrupo) {
+        const grupos = (p.grupos || []).map((g) => g.grupo_cognito);
+        if (!grupos.includes(filterGrupo)) return false;
+      }
       return true;
     });
-  }, [proyectos, searchTitulo, filterEmpresa]);
+  }, [proyectos, searchTitulo, filterEmpresa, filterGrupo]);
 
   const tienesFiltrosActivos = searchTitulo || filterGrupo || filterEmpresa;
 
@@ -152,6 +167,20 @@ export default function ProyectosPage() {
                 className="pl-9"
               />
             </div>
+            {gruposUnicos.length > 0 && (
+              <select
+                value={filterGrupo}
+                onChange={(e) => setFilterGrupo(e.target.value)}
+                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="">Todos los grupos</option>
+                {gruposUnicos.map((grupo) => (
+                  <option key={grupo} value={grupo}>
+                    {grupo}
+                  </option>
+                ))}
+              </select>
+            )}
             {empresasUnicas.length > 1 && (
               <select
                 value={filterEmpresa}
