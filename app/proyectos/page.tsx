@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchProyectosConGrupos, type ProyectoCatalogo } from '@/lib/proyectos-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -240,28 +239,34 @@ export default function ProyectosPage() {
                 )}
               </div>
             ) : (
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-3">
                 {proyectosFiltrados.map((proyecto) => (
-                  <Card
+                  <div
                     key={proyecto.id}
-                    className="group hover:shadow-lg transition-all duration-200 border-gray-200"
+                    className="w-full bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow px-5 py-4"
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg leading-tight line-clamp-2">
-                            {proyecto.nombre}
-                          </CardTitle>
-                          <CardDescription className="mt-1.5 font-medium">
-                            {proyecto.empresa_label}
-                          </CardDescription>
-                        </div>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      {/* Izquierda: titulo, empresa, descripcion */}
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-lg font-semibold text-gray-900 leading-tight">
+                          {proyecto.nombre}
+                        </h2>
+                        <p className="mt-1 text-sm font-medium text-muted-foreground">
+                          {proyecto.empresa_label}
+                        </p>
+                        <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                          {proyecto.descripcion || 'Sin descripción.'}
+                        </p>
+                      </div>
+
+                      {/* Derecha: estado + acciones */}
+                      <div className="flex shrink-0 flex-col items-stretch gap-3 sm:items-end">
                         <Badge
                           variant={proyecto.status === 'active' ? 'default' : 'secondary'}
                           className={
                             proyecto.status === 'active'
-                              ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100'
-                              : ''
+                              ? 'w-fit bg-green-100 text-green-800 border-green-200 hover:bg-green-100'
+                              : 'w-fit'
                           }
                         >
                           {proyecto.status === 'active'
@@ -270,38 +275,31 @@ export default function ProyectosPage() {
                               ? 'Borrador'
                               : 'Archivado'}
                         </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-600 line-clamp-3">
-                        {proyecto.descripcion || 'Sin descripción.'}
-                      </p>
-
-                      <div className="flex gap-2">
-                        <a
-                          href={proyecto.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <Button className="w-full bg-[#a738cd] hover:bg-[#8c2ca3]">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Abrir proyecto
-                          </Button>
-                        </a>
-                        {isUrbex && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setAdminProyecto(proyecto)}
-                            title="Administrar proyecto"
+                        <div className="flex gap-2">
+                          <a
+                            href={proyecto.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                        )}
+                            <Button className="bg-[#a738cd] hover:bg-[#8c2ca3]">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir proyecto
+                            </Button>
+                          </a>
+                          {isUrbex && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setAdminProyecto(proyecto)}
+                              title="Administrar proyecto"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
