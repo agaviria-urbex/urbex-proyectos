@@ -1,18 +1,23 @@
-import { projects } from '@/projects/registry';
+import { fetchProyectos, type ProyectoCatalogo } from '@/lib/proyectos-api';
 
 /**
- * Verifica acceso al proyecto. Fase 1: cualquier usuario activo puede entrar.
- * Preparado para restricciones por empresa/grupo en fases futuras.
+ * Verifica si el usuario tiene acceso a un proyecto determinado.
+ * Consulta la API que filtra por grupo de Cognito del usuario.
+ * @urbex siempre tiene acceso a todos los proyectos.
  */
 export async function checkProjectAccess(
-  _empresa: string,
-  _proyecto: string
+  email: string,
+  empresa: string,
+  proyecto: string
 ): Promise<boolean> {
-  return true;
-}
+  try {
+    const res = await fetchProyectos(email);
+    if (!res.success || !res.data) return false;
 
-export function getProject(empresa: string, proyecto: string) {
-  return projects.find(
-    (p) => p.empresa === empresa && p.id === proyecto
-  );
+    return res.data.some(
+      (p: ProyectoCatalogo) => p.empresa === empresa && p.slug === proyecto
+    );
+  } catch {
+    return false;
+  }
 }

@@ -47,6 +47,7 @@ export interface User {
   emailVerified?: boolean;
   accountStatus?: AccountStatus;
   plan?: string | null;
+  group?: string | null;
 }
 
 export interface LoginData {
@@ -369,6 +370,7 @@ export const getUserInfo = async (): Promise<User> => {
     // Obtener estado de cuenta del atributo custom (si existe)
     const accountStatus = (attributes['custom:accountStatus'] as AccountStatus) || AccountStatus.PENDING;
     const plan = (attributes['custom:plan'] as string) || null;
+    const group = (attributes['custom:Group'] as string) || null;
 
     const user: User = {
       id: currentUser.userId,
@@ -378,6 +380,7 @@ export const getUserInfo = async (): Promise<User> => {
       emailVerified: attributes.email_verified === 'true',
       accountStatus: accountStatus,
       plan,
+      group,
     };
 
     return user;

@@ -8,8 +8,6 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ConfirmEmailForm } from '@/components/ConfirmEmailForm';
 import { ForgotPasswordForm } from '@/components/ForgotPasswordForm';
 import { Loader2 } from 'lucide-react';
-import { projects } from '@/projects/registry';
-
 const URBEX_LOGO =
   'https://iconsapp.nyc3.digitaloceanspaces.com/urbex_negativo.png';
 
@@ -21,13 +19,11 @@ export default function HomePage() {
   const [authView, setAuthView] = useState<AuthView>('login');
   const [confirmEmail, setConfirmEmail] = useState('');
 
-  const defaultProject = projects[0];
-
   useEffect(() => {
-    if (!isLoading && user && defaultProject) {
-      router.push(defaultProject.url);
+    if (!isLoading && user) {
+      router.push('/proyectos');
     }
-  }, [user, isLoading, router, defaultProject]);
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
