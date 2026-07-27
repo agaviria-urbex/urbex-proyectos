@@ -1,7 +1,3 @@
-import { API_CONFIG } from './api-config';
-
-const API_KEY = process.env.NEXT_PUBLIC_URBEX_API_KEY || process.env.URBEX_API_KEY || '';
-
 export interface ProyectoCatalogo {
   id: number;
   slug: string;
@@ -29,14 +25,20 @@ interface ApiResponse<T = unknown> {
   error?: string;
 }
 
-async function apiCall<T = unknown>(endpoint: string, body: Record<string, unknown>): Promise<ApiResponse<T>> {
-  const res = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
+/**
+ * Llama al proxy interno /api/proyectos (server-side),
+ * que agrega URBEX_API_KEY sin exponerla en el browser.
+ */
+async function apiCall<T = unknown>(
+  endpoint: string,
+  body: Record<string, unknown>
+): Promise<ApiResponse<T>> {
+  const res = await fetch('/api/proyectos', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-API-Key': API_KEY,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ endpoint, ...body }),
   });
 
   const data = await res.json();
