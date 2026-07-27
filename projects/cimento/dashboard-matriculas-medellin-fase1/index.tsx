@@ -1,12 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Loader2, LogOut } from 'lucide-react';
+import { Download, Loader2, LogOut } from 'lucide-react';
 import { FilterPanel } from './FilterPanel';
 import { StatsPanel } from './StatsPanel';
 import { useGeoData } from './useGeoData';
+import { exportMatriculasToExcel } from './exportExcel';
 
 const MapPanel = dynamic(
   () => import('./MapPanel').then((mod) => ({ default: mod.MapPanel })),
@@ -25,6 +27,7 @@ const URBEX_LOGO =
 
 export default function DashboardMatriculasMedellin() {
   const { logout } = useAuth();
+  const [isExporting, setIsExporting] = useState(false);
   const {
     loading,
     error,
@@ -38,6 +41,25 @@ export default function DashboardMatriculasMedellin() {
     destinaciones,
     filterOptions,
   } = useGeoData();
+
+  const matriculaFeatures =
+    filteredData?.layers.base_predios_completa.features.filter(
+      (f) => String(f.properties?.fuente ?? '') === 'matricula'
+    ) ?? [];
+
+  const handleExportToExcel = async () => {
+    if (matriculaFeatures.length === 0) return;
+
+    setIsExporting(true);
+    try {
+      await exportMatriculasToExcel(matriculaFeatures);
+    } catch (err) {
+      console.error('Error exportando a Excel:', err);
+      alert('Error al exportar el archivo Excel. Por favor intenta de nuevo.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,10 +95,29 @@ export default function DashboardMatriculasMedellin() {
             <p className="text-xs text-muted-foreground">Cimento · Villa Carlota / Barrio Colombia</p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => logout()}>
-          <LogOut className="h-4 w-4 mr-2" />
-          Cerrar sesión
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportToExcel}
+            disabled={isExporting || matriculaFeatures.length === 0}
+            className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generando Excel...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Descargar Excel
+              </>
+            )}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => logout()}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Cerrar sesión
+          </Button>
+        </div>
       </header>
 
       <div className="flex flex-1 min-h-0">

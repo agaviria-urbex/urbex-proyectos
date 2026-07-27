@@ -26,6 +26,7 @@
     "aws-amplify": "^6.15.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
     "lucide-react": "^0.446.0",
     "mapbox-gl": "^3.1.2",
     "next": "^14.2.35",
