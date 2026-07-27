@@ -58,10 +58,49 @@ lib/                    # Auth, utils, API config
 
 ## Despliegue (DigitalOcean App Platform)
 
-1. Conectar repo `agaviria-urbex/urbex-proyectos` a App Platform
-2. Usar el `Dockerfile` incluido
-3. Configurar variables `NEXT_PUBLIC_*` en build time (`NEXT_PUBLIC_SITE_URL=https://proyectos.urbex.com.co`)
-4. Configurar DNS en GoDaddy: subdominio `proyectos.urbex.com.co` → app
+La app se despliega con el `Dockerfile` (puerto **8080**) y la spec en [`.do/app.yaml`](.do/app.yaml).
+
+### Opción A — Panel de DigitalOcean
+
+1. Crear app en App Platform y conectar el repo `agaviria-urbex/urbex-proyectos` (branch `main`)
+2. Elegir build con **Dockerfile** (`Dockerfile` en la raíz)
+3. Puerto HTTP: `8080`; health check: `/api/health`
+4. Configurar las variables de entorno en el panel (ver tabla abajo)
+5. Añadir dominio `proyectos.urbex.com.co` y apuntar DNS (GoDaddy u otro) al app
+
+### Opción B — doctl
+
+```bash
+doctl apps create --spec .do/app.yaml
+```
+
+Luego asigna los valores de las variables en el panel (los secretos no van en el YAML).
+
+### Variables en App Platform
+
+| Variable | Scope | Tipo |
+|----------|-------|------|
+| `NODE_ENV` | — | `production` (ya en YAML) |
+| `NEXT_PUBLIC_URBEX_API_URL` | RUN_AND_BUILD_TIME | GENERAL |
+| `URBEX_API_KEY` | RUN_TIME | SECRET |
+| `NEXT_PUBLIC_COGNITO_USER_POOL_ID` | RUN_AND_BUILD_TIME | GENERAL |
+| `NEXT_PUBLIC_COGNITO_CLIENT_ID` | RUN_AND_BUILD_TIME | GENERAL |
+| `NEXT_PUBLIC_COGNITO_REGION` | RUN_AND_BUILD_TIME | GENERAL |
+| `AWS_ACCESS_KEY_ID` | RUN_TIME | SECRET (opcional) |
+| `AWS_SECRET_ACCESS_KEY` | RUN_TIME | SECRET (opcional) |
+| `AWS_REGION` | RUN_TIME | GENERAL |
+| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | RUN_AND_BUILD_TIME | GENERAL |
+| `NEXT_PUBLIC_SITE_URL` | RUN_AND_BUILD_TIME | GENERAL → `https://proyectos.urbex.com.co` |
+
+Las `NEXT_PUBLIC_*` deben existir en **build time** (se inyectan en el bundle de Next.js).
+
+### Verificación
+
+```bash
+curl https://proyectos.urbex.com.co/api/health
+```
+
+Respuesta esperada: JSON con `"status": "ok"`.
 
 La app vive en la raíz del subdominio (sin prefijo `/proyectos`).
 
