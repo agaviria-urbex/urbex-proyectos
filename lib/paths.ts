@@ -1,4 +1,4 @@
-export const BASE_PATH = '/proyectos';
+export const BASE_PATH = '';
 
 export function withBasePath(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;

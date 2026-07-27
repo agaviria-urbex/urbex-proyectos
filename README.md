@@ -2,14 +2,14 @@
 
 Plataforma multi-proyecto de Urbex para aplicativos personalizados por empresa.
 
-**URL producción:** `https://www.urbex.com.co/proyectos`
+**URL producción:** `https://proyectos.urbex.com.co`
 
 ## Proyectos activos
 
 | Empresa | Proyecto | URL |
 |---------|----------|-----|
-| Cimento | Dashboard Matrículas Medellín - Fase 1 | `/proyectos/cimento/dashboard-matriculas-medellin-fase1` |
-| Urbex (admin) | Consola de proyectos | `/proyectos/consola` |
+| Cimento | Dashboard Matrículas Medellín - Fase 1 | `/cimento/dashboard-matriculas-medellin-fase1` |
+| Urbex (admin) | Consola de proyectos | `/consola` |
 
 ## Desarrollo local
 
@@ -28,7 +28,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Abrir: `http://localhost:3000/proyectos`
+Abrir: `http://localhost:3000`
 
 ## Variables de entorno
 
@@ -37,11 +37,12 @@ Ver `.env.example`. Las variables críticas son:
 - `NEXT_PUBLIC_COGNITO_USER_POOL_ID` / `NEXT_PUBLIC_COGNITO_CLIENT_ID` — Auth AWS Cognito (mismo pool que urbex-app)
 - `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` — Mapa Mapbox
 - `NEXT_PUBLIC_URBEX_API_URL` / `URBEX_API_KEY` — APIs Urbex (futuro)
+- `NEXT_PUBLIC_SITE_URL` — URL pública (`https://proyectos.urbex.com.co`)
 
 ## Estructura
 
 ```
-app/                    # Rutas Next.js (basePath: /proyectos)
+app/                    # Rutas Next.js (raíz del dominio)
 projects/               # Módulos por empresa/proyecto
   registry.ts           # Catálogo central de proyectos
   cimento/              # Proyectos de Cimento
@@ -59,18 +60,16 @@ lib/                    # Auth, utils, API config
 
 1. Conectar repo `agaviria-urbex/urbex-proyectos` a App Platform
 2. Usar el `Dockerfile` incluido
-3. Configurar variables `NEXT_PUBLIC_*` en build time
-4. Configurar DNS en GoDaddy:
-   - Opción A: subdominio `proyectos.urbex.com.co` → app
-   - Opción B: reverse proxy en `www.urbex.com.co/proyectos` → app
+3. Configurar variables `NEXT_PUBLIC_*` en build time (`NEXT_PUBLIC_SITE_URL=https://proyectos.urbex.com.co`)
+4. Configurar DNS en GoDaddy: subdominio `proyectos.urbex.com.co` → app
 
-La app usa `basePath: '/proyectos'`, por lo que todas las rutas internas se resuelven bajo ese prefijo.
+La app vive en la raíz del subdominio (sin prefijo `/proyectos`).
 
 ## Auth
 
 - Login/registro con AWS Cognito (mismo User Pool que urbex-app-prod)
 - Usuarios con `custom:accountStatus = active` pueden acceder
-- Consola `/proyectos/consola` requiere `custom:Group` que incluya `@urbex`
+- Consola `/consola` requiere `custom:Group` que incluya `@urbex`
 
 ## GeoJSON
 

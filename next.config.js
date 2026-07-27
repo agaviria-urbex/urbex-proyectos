@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/proyectos',
-  assetPrefix: '/proyectos',
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
