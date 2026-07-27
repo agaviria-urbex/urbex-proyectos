@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { BackToProjectsButton } from '@/components/BackToProjectsButton';
 import { LogOut } from 'lucide-react';
 import { SearchFilters } from './components/SearchFilters';
 
@@ -25,10 +26,13 @@ export default function LeadsGeneration() {
             </p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => logout()}>
-          <LogOut className="mr-2 h-4 w-4" />
-          Cerrar sesión
-        </Button>
+        <div className="flex items-center gap-2">
+          <BackToProjectsButton />
+          <Button variant="outline" size="sm" onClick={() => logout()}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Cerrar sesión
+          </Button>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-4xl flex-1 p-6">

@@ -41,6 +41,16 @@ export const projects: ProjectDefinition[] = [
     url: '/urbex/multiplaza',
     status: 'active',
   },
+  {
+    id: 'kia',
+    empresa: 'urbex',
+    empresaLabel: 'Urbex',
+    nombre: 'Dashboard KIA',
+    descripcion:
+      'Dashboard de analisis de datos de perfilamiento de clientes de propietarios de placas de KIA y analisis de cambio de propietario de los vehiculos KIA',
+    url: '/urbex/kia',
+    status: 'active',
+  },
 ];
 
 export function getProjectBySlug(empresa: string, proyecto: string) {

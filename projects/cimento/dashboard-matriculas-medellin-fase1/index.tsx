@@ -4,6 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { BackToProjectsButton } from '@/components/BackToProjectsButton';
 import { Download, Loader2, LogOut } from 'lucide-react';
 import { FilterPanel } from './FilterPanel';
 import { StatsPanel } from './StatsPanel';
@@ -113,6 +114,7 @@ export default function DashboardMatriculasMedellin() {
               </>
             )}
           </Button>
+          <BackToProjectsButton />
           <Button variant="outline" size="sm" onClick={() => logout()}>
             <LogOut className="h-4 w-4 mr-2" />
             Cerrar sesión
