@@ -21,6 +21,16 @@ export const projects: ProjectDefinition[] = [
     url: '/cimento/dashboard-matriculas-medellin-fase1',
     status: 'active',
   },
+  {
+    id: 'leads-generation',
+    empresa: 'urbex',
+    empresaLabel: 'Urbex',
+    nombre: 'Generador de leads',
+    descripcion:
+      'Informacion general de propiedades, vehiculos y de contacto a partir de identificacion, placa, email o telefonos',
+    url: '/urbex/leads-generation',
+    status: 'active',
+  },
 ];
 
 export function getProjectBySlug(empresa: string, proyecto: string) {
