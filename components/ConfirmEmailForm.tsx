@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { confirmSignUpWithCode, resendConfirmationCode } from '@/lib/auth';
 import { Loader2, AlertCircle, CheckCircle2, Mail, Info } from 'lucide-react';
@@ -70,14 +70,12 @@ export function ConfirmEmailForm({ email, onBackToLogin }: ConfirmEmailFormProps
 
   if (isConfirmed) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-700">
+      <Card className="w-full">
+        <CardContent className="space-y-4 p-8">
+          <div className="mb-2 flex items-center gap-2 text-2xl font-bold text-green-700">
             <CheckCircle2 className="h-6 w-6" />
             Cuenta confirmada
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </div>
           <Alert>
             <Info className="h-4 w-4" />
             <AlertTitle>Pendiente de aprobación</AlertTitle>
@@ -86,7 +84,7 @@ export function ConfirmEmailForm({ email, onBackToLogin }: ConfirmEmailFormProps
               {URBEX_CONTACT.phoneFormatted}.
             </AlertDescription>
           </Alert>
-          <Button onClick={onBackToLogin} className="w-full bg-[#a738cd] hover:bg-[#8c2ca3]">
+          <Button onClick={onBackToLogin} className="w-full">
             Ir a Iniciar Sesión
           </Button>
         </CardContent>
@@ -95,17 +93,17 @@ export function ConfirmEmailForm({ email, onBackToLogin }: ConfirmEmailFormProps
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Mail className="h-5 w-5" />
-          Confirmar Email
-        </CardTitle>
-        <CardDescription>
-          Ingresa el código enviado a <strong>{email}</strong>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full">
+      <CardContent className="p-8">
+        <div className="mb-6">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <Mail className="h-5 w-5" />
+            Confirmar email
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Ingresa el código enviado a <strong>{email}</strong>
+          </p>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="code">Código de verificación</Label>
@@ -134,7 +132,7 @@ export function ConfirmEmailForm({ email, onBackToLogin }: ConfirmEmailFormProps
             </Alert>
           )}
 
-          <Button type="submit" className="w-full bg-[#a738cd] hover:bg-[#8c2ca3]" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirmar Email
           </Button>

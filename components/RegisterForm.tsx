@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { register as registerUser, validatePassword } from '@/lib/auth';
 import { Loader2, AlertCircle, CheckCircle2, Info, ExternalLink } from 'lucide-react';
@@ -116,14 +116,14 @@ export function RegisterForm({ onToggleForm, onRegistrationSuccess, initialData,
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Crear Cuenta</CardTitle>
-        <CardDescription>
-          Regístrate en Urbex para acceder a todas las funcionalidades
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full">
+      <CardContent className="p-8">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold">Crear cuenta</h2>
+          <p className="text-sm text-muted-foreground">
+            Regístrate para acceder a los proyectos Taylor Made
+          </p>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nombre">Nombre completo</Label>

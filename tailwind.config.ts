@@ -49,6 +49,13 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        // Marca Urbex
+        urbex: {
+          purple: '#7C3AED',
+          purpleDark: '#4C1D95',
+          black: '#111827',
+          gray: '#6B7280',
+        },
       },
     },
   },

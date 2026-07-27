@@ -8,8 +8,6 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ConfirmEmailForm } from '@/components/ConfirmEmailForm';
 import { ForgotPasswordForm } from '@/components/ForgotPasswordForm';
 import { Loader2 } from 'lucide-react';
-const URBEX_LOGO =
-  'https://iconsapp.nyc3.digitaloceanspaces.com/urbex_negativo.png';
 
 type AuthView = 'login' | 'register' | 'confirm' | 'forgot';
 
@@ -27,59 +25,79 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-10 w-10 animate-spin text-[#a738cd]" />
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-[#a738cd]" />
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex flex-col">
-      <header className="p-6 flex justify-center">
-        <img src={URBEX_LOGO} alt="Urbex" className="h-10" />
-      </header>
-
-      <main className="flex-1 flex flex-col items-center justify-center px-4 pb-12">
-        <div className="text-center mb-8 max-w-lg">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Urbex Proyectos</h1>
-          <p className="text-gray-600">
-            Plataforma de aplicativos personalizados por empresa. Inicia sesión para acceder a tu proyecto.
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Panel izquierdo - marca */}
+      <div className="hidden w-1/2 flex-col justify-between bg-urbex-black p-12 text-white lg:flex">
+        <div>
+          <div className="text-2xl font-bold tracking-tight">
+            URBEX<span className="text-primary">.</span>
+          </div>
+          <p className="mt-1 text-sm text-gray-400">Proyectos</p>
+        </div>
+        <div className="space-y-6">
+          <h1 className="text-4xl font-bold leading-tight">
+            Plataforma de proyectos Taylor Made para empresas
+          </h1>
+          <p className="text-gray-300">
+            Accede a los aplicativos personalizados que Urbex desarrolla a la
+            medida de tu empresa y gestiona tus proyectos en un solo lugar.
           </p>
         </div>
+        <p className="text-xs text-gray-500">© Urbex</p>
+      </div>
 
-        {authView === 'login' && (
-          <LoginForm
-            onToggleForm={() => setAuthView('register')}
-            onForgotPassword={() => setAuthView('forgot')}
-          />
-        )}
-        {authView === 'register' && (
-          <RegisterForm
-            onToggleForm={() => setAuthView('login')}
-            onRegistrationSuccess={(email) => {
-              setConfirmEmail(email);
-              setAuthView('confirm');
-            }}
-          />
-        )}
-        {authView === 'confirm' && (
-          <ConfirmEmailForm
-            email={confirmEmail}
-            onBackToLogin={() => setAuthView('login')}
-          />
-        )}
-        {authView === 'forgot' && (
-          <ForgotPasswordForm onBackToLogin={() => setAuthView('login')} />
-        )}
-      </main>
+      {/* Panel derecho - auth */}
+      <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
+        <div className="w-full max-w-md">
+          {/* Marca visible en móvil */}
+          <div className="mb-8 text-center lg:hidden">
+            <div className="text-2xl font-bold tracking-tight">
+              URBEX<span className="text-primary">.</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">Proyectos</p>
+          </div>
+
+          {authView === 'login' && (
+            <LoginForm
+              onToggleForm={() => setAuthView('register')}
+              onForgotPassword={() => setAuthView('forgot')}
+            />
+          )}
+          {authView === 'register' && (
+            <RegisterForm
+              onToggleForm={() => setAuthView('login')}
+              onRegistrationSuccess={(email) => {
+                setConfirmEmail(email);
+                setAuthView('confirm');
+              }}
+            />
+          )}
+          {authView === 'confirm' && (
+            <ConfirmEmailForm
+              email={confirmEmail}
+              onBackToLogin={() => setAuthView('login')}
+            />
+          )}
+          {authView === 'forgot' && (
+            <ForgotPasswordForm onBackToLogin={() => setAuthView('login')} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

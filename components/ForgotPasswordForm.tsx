@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { forgotPassword, confirmForgotPassword, validatePassword } from '@/lib/auth';
 import { Loader2, AlertCircle, CheckCircle2, KeyRound, Mail, Info } from 'lucide-react';
@@ -130,29 +130,28 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {step === 'email' ? (
-            <>
-              <Mail className="h-5 w-5" />
-              Recuperar Contraseña
-            </>
-          ) : (
-            <>
-              <KeyRound className="h-5 w-5" />
-              Restablecer Contraseña
-            </>
-          )}
-        </CardTitle>
-        <CardDescription>
-          {step === 'email' 
-            ? 'Ingresa tu email para recibir un código de recuperación'
-            : 'Ingresa el código y tu nueva contraseña'
-          }
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full">
+      <CardContent className="p-8">
+        <div className="mb-6">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            {step === 'email' ? (
+              <>
+                <Mail className="h-5 w-5" />
+                Recuperar contraseña
+              </>
+            ) : (
+              <>
+                <KeyRound className="h-5 w-5" />
+                Restablecer contraseña
+              </>
+            )}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {step === 'email'
+              ? 'Ingresa tu email para recibir un código de recuperación'
+              : 'Ingresa el código y tu nueva contraseña'}
+          </p>
+        </div>
         {step === 'email' ? (
           <form onSubmit={handleSubmitEmail(onSubmitEmail)} className="space-y-4">
             <div className="space-y-2">
