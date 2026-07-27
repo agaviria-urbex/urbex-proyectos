@@ -60,6 +60,24 @@ const projectModules: Record<string, Record<string, React.ComponentType>> = {
         ),
       }
     ),
+    multiplaza: dynamic(
+      () =>
+        import('@/projects/urbex/multiplaza').catch((err) => {
+          console.error('Error cargando dashboard multiplaza:', err);
+          return { default: DashboardLoadError };
+        }),
+      {
+        ssr: false,
+        loading: () => (
+          <div className="flex h-screen items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <Loader2 className="h-10 w-10 animate-spin text-[#a738cd] mx-auto mb-3" />
+              <p className="text-gray-600">Cargando Dashboard Multiplaza...</p>
+            </div>
+          </div>
+        ),
+      }
+    ),
   },
 };
 

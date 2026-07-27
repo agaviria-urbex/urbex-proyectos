@@ -31,6 +31,16 @@ export const projects: ProjectDefinition[] = [
     url: '/urbex/leads-generation',
     status: 'active',
   },
+  {
+    id: 'multiplaza',
+    empresa: 'urbex',
+    empresaLabel: 'Urbex',
+    nombre: 'Dashboard Multiplaza',
+    descripcion:
+      'Dashboard de entendimiento demografico de los propietarios de los vehiculos que ingresan al centro comercial multiplaza en bogota',
+    url: '/urbex/multiplaza',
+    status: 'active',
+  },
 ];
 
 export function getProjectBySlug(empresa: string, proyecto: string) {
